@@ -10,7 +10,12 @@ const unit_MB = "{"%s MB"|@translate}"
 let selected = [];
 $(".lock-gallery-button").each(function() {
   const gallery_tip = '{"A locked gallery is only visible to administrators"|@translate|@escape:'javascript'}';
-  let title = '{"Are you sure you want to lock the gallery?"|@translate}';
+  {if (isset($U_MAINT_LOCK_GALLERY))}
+    let title = '{"Are you sure you want to lock the gallery?"|@translate}';
+  {else}
+    let title = '{"Are you sure you want to unlock the gallery?"|@translate}';
+  {/if}
+  
   let confirm_msg_gallery = '{"Yes, I want to lock the gallery"|@translate}';
   let cancel_msg_gallery = '{"Keep it unlocked"|@translate}';
   $(this).pwg_jconfirm_follow_href({
@@ -116,7 +121,7 @@ $(".delete-size-check").click( function () {
 {if $isWebmaster == 1}
 
 <fieldset class="">
-  <legend><span class="icon-globe icon-blue"></span>Global Gallery Actions</legend>
+  <legend><span class="icon-globe icon-blue"></span>{'Global Gallery Actions'|translate}</legend>
   <div style="display:flex;flex-wrap: wrap;">
 {if (isset($U_MAINT_LOCK_GALLERY))}
     <a href="{$U_MAINT_LOCK_GALLERY}" class="lock-gallery-button icon-lock maintenance-action">{'Lock gallery'|@translate}</a>
@@ -130,7 +135,7 @@ $(".delete-size-check").click( function () {
   </div>
 </fieldset>
 <fieldset class="">
-  <legend><span class="icon-trash-1 icon-green"></span>Purge Actions</legend>
+  <legend><span class="icon-trash-1 icon-green"></span>{'Purge Actions'|@translate}</legend>
   <div style="display:flex;flex-wrap: wrap;">
     <a href="{$U_MAINT_USER_CACHE}" class="icon-user-1 maintenance-action">{'Purge user cache'|@translate}</a>
     <a href="{$U_MAINT_ORPHAN_TAGS}" class="icon-tags maintenance-action">{'Delete orphan tags'|@translate}</a>
@@ -142,8 +147,19 @@ $(".delete-size-check").click( function () {
   </div>
 </fieldset>
 
+{if isset($advanced_features) and !(count($advanced_features) < 1)}
+  <fieldset class="">
+  <legend><span class="icon-puzzle icon-purple"></span>{'Advanced features'|@translate}</legend>
+  <div style="display:flex;flex-wrap: wrap;">
+  {foreach from=$advanced_features item=feature key=key name=name}
+    <a href="{$feature.URL}" class="{$feature.ICON} maintenance-action">{$feature.CAPTION}</a>
+  {/foreach}
+  </div>
+</fieldset>
+{/if}
+
 <fieldset class="">
-  <legend><span class="icon-trash-1 icon-red"></span>Purge Cache</legend>
+  <legend><span class="icon-trash-1 icon-red"></span>{'Purge Cache'|@translate}</legend>
 
   <div class="template-purge">
     <div class="cache-infos">
@@ -210,6 +226,9 @@ $(".delete-size-check").click( function () {
   padding: 8px 10px;
   margin-right: 20px;
   margin-bottom: 20px;
+}
+.maintenance-action.icon-th-list {
+  font-size: 13px;
 }
 
 .delete-size-checks {

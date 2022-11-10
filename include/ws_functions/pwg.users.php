@@ -44,16 +44,16 @@ function ws_users_getList($params, &$service)
   $filtered_groups = array();
   if (!empty($params['filter']))
   {
-    $filter_query = 'SELECT id FROM '. GROUPS_TABLE .' WHERE name LIKE \''. $params['filter'] . '\';';
+    $filter_query = 'SELECT id FROM `'. GROUPS_TABLE .'` WHERE name LIKE \'%'. $params['filter'] . '%\';';
     $filtered_groups_res = pwg_query($filter_query);
     while ($row = pwg_db_fetch_assoc($filtered_groups_res))
     {
       $filtered_groups[] = $row['id'];
     }
-    $filter_where_clause = '('.'u.'.$conf['user_fields']['username'].' LIKE \''.
-    pwg_db_real_escape_string($params['filter']).'\' OR '
-    .'u.'.$conf['user_fields']['email'].' LIKE \''.
-    pwg_db_real_escape_string($params['filter']).'\'';
+    $filter_where_clause = '('.'u.'.$conf['user_fields']['username'].' LIKE \'%'.
+    pwg_db_real_escape_string($params['filter']).'%\' OR '
+    .'u.'.$conf['user_fields']['email'].' LIKE \'%'.
+    pwg_db_real_escape_string($params['filter']).'%\'';
 
     if (!empty($filtered_groups)) {
       $filter_where_clause .= 'OR ug.group_id IN ('. implode(',', $filtered_groups).')';
@@ -761,6 +761,34 @@ SELECT
     'user_id' => $params['user_id'],
     'display' => 'basics,'.implode(',', array_keys($updates_infos)),
     ));
+}
+
+/**
+ * API method
+ * Set a preferences parameter to current user
+ * @since 13
+ * @param mixed[] $params
+ *    @option string param
+ *    @option string|mixed value
+ */
+function ws_users_preferences_set($params, &$service)
+{
+  global $user;
+
+  if (!preg_match('/^[a-zA-Z0-9_-]+$/', $params['param']))
+  {
+    return new PwgError(WS_ERR_INVALID_PARAM, 'Invalid param name #'.$params['param'].'#');
+  }
+
+  $value = stripslashes($params['value']);
+  if ($params['is_json'])
+  {
+    $value = json_decode($value, true);
+  }
+
+  userprefs_update_param($params['param'], $value, true);
+
+  return $user['preferences'];
 }
 
 /**

@@ -1,6 +1,9 @@
 {combine_script id='common' load='footer' path='admin/themes/default/js/common.js'}
 
 {footer_script}
+$(document).ready(() => {
+  $("h1").append("<span class='badge-number'>"+{$nb_cats}+"</span>");
+});
 var data = {json_encode($data_cat)};
 /* 
   Here data is an associative array id => category under this form 
@@ -111,9 +114,9 @@ function addAlbumResult (cat, nbResult) {
 function getHtmlPath (cat) {
   html = '';
   for (let i = 0; i < cat[1].length - 1; i++) {
-    id = cat[1][i];
-    c = data[id];
-    html += '<a href="' + editLink + id + '">' + c[0] + '</a> <b>/</b> '
+    id_bis = cat[1][i];
+    c = data[id_bis];
+    html += '<a href="' + editLink + id_bis + '">' + c[0] + '</a> <b>/</b> '
   }
   html += '<a href="' + editLink + cat[1][cat[1].length - 1] + '">' + cat[0] + '</a>';
 
@@ -128,15 +131,6 @@ function resultAppear(result) {
   }
 }
 
-function prepare_skeleton() {
-  while (!($(document).height() > $(window).height())) {
-    $(".search-album-ghost").append("<div></div>");
-  }
-  $(".search-album-ghost div:last").remove();
-};
-
-prepare_skeleton();
-
 updateSearch();
 $('.search-input').focus();
 {/literal}
@@ -148,7 +142,7 @@ $('.search-input').focus();
     <div class="search-album-input-container" style="position:relative">
       <span class="icon-search search-icon"></span>
       <span class="icon-cancel search-cancel"></span>
-      <input class='search-input' type="text" placeholder="{'Portraits'|@translate}">
+      <input class='search-input' type="text" placeholder="{$placeholder|escape:html}">
     </div>
     <span class="search-album-help icon-help-circled" title="{'Enter a term to search for album'|@translate}"></span>
     <span class="search-album-num-result"></span>
@@ -156,9 +150,7 @@ $('.search-input').focus();
 </div>
 
 <div class="search-album-ghost">
-  <div></div>
-  <div></div>
-  <div></div>
+  <span>{'No research in progress'|@translate}</span>
 </div>
 
 <div class="search-album-elem-template" style="display:none">
