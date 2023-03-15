@@ -39,6 +39,10 @@ $display_thumbnails = array('no_display_thumbnail' => l10n('No display'),
 
 check_status(ACCESS_ADMINISTRATOR);
 
+check_input_parameter('filter_ip', $_GET, false, '/^[0-9.]+$/');
+check_input_parameter('filter_image_id', $_GET, false, '/^\d+$/');
+check_input_parameter('filter_user_id', $_GET, false, '/^\d+$/');
+
 // +-----------------------------------------------------------------------+
 // |                             template init                             |
 // +-----------------------------------------------------------------------+
@@ -103,6 +107,11 @@ else
 $form_param['ip'] = isset($_GET['filter_ip']) ? $_GET['filter_ip'] : @$form['ip'];
 $form_param['image_id'] = isset($_GET['filter_image_id']) ? $_GET['filter_image_id'] : @$form['image_id'];
 $form_param['user_id'] = isset($_GET['filter_user_id']) ? $_GET['filter_user_id'] : "-1";
+
+if (isset($_GET['filter_ip']) or isset($_GET['filter_image_id']) or isset($_GET['filter_user_id']))
+{
+  $form['start'] = '';
+}
 
 if ($form_param['user_id'] != "-1") {
   $query = '
