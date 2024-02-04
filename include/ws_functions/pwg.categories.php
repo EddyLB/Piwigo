@@ -20,8 +20,28 @@ function ws_categories_getImages($params, &$service)
 {
   global $user, $conf;
 
+  $params['cat_id'] = array_unique($params['cat_id']);
+
+  if (count($params['cat_id']) > 0)
+  {
+    // do the categories really exist?
+    $query = '
+SELECT id
+  FROM '.CATEGORIES_TABLE.'
+  WHERE id IN ('.implode(',', $params['cat_id']).')
+;';
+    $db_cat_ids = query2array($query, null, 'id');
+    $missing_cat_ids = array_diff($params['cat_id'], $db_cat_ids);
+
+    if (count($missing_cat_ids) > 0)
+    {
+      return new PwgError(404, 'cat_id {'.implode(',', $missing_cat_ids).'} not found');
+    }
+  }
+
   $images = array();
   $image_ids = array();
+  $total_images = 0;
 
   //------------------------------------------------- get the related categories
   $where_clauses = array();
@@ -275,11 +295,21 @@ SELECT
     uppercats, global_rank, id_uppercat,
     nb_images, count_images AS total_nb_images,
     representative_picture_id, user_representative_picture_id, count_images, count_categories,
-    date_last, max_date_last, count_categories AS nb_categories
+    date_last, max_date_last, count_categories AS nb_categories,
+    image_order
   FROM '. CATEGORIES_TABLE .'
     '.$join_type.' JOIN '. USER_CACHE_CATEGORIES_TABLE .'
     ON id=cat_id AND user_id='.$join_user.'
-  WHERE '. implode("\n    AND ", $where) .'
+  WHERE '. implode("\n    AND ", $where);
+
+  if (isset($params["search"]) and $params['search'] != "")
+  {
+    $query .= '
+    AND name LIKE \'%'.pwg_db_real_escape_string($params["search"]).'%\'
+  LIMIT '.$conf["linked_album_search_limit"];
+  }
+
+  $query.= '
 ;';
   $result = pwg_query($query);
 
@@ -389,6 +419,11 @@ SELECT representative_picture_id
     }
     unset($image_id);
     // management of the album thumbnail -- stops here
+
+    if (empty($row['image_order']))
+    {
+      $row['image_order'] = str_replace('ORDER BY ', '', $conf['order_by']);
+    }
 
     $cats[] = $row;
   }
@@ -526,10 +561,10 @@ SELECT id, path, representative_ext
  */
 function ws_categories_getAdminList($params, &$service)
 {
-
   global $conf;
 
-  if (!isset($params['additional_output'])) {
+  if (!isset($params['additional_output']))
+  {
     $params['additional_output'] = "";
   }
   $params['additional_output'] = array_map('trim', explode(',', $params['additional_output']));
@@ -544,7 +579,7 @@ SELECT category_id, COUNT(*) AS counter
   // pwg_db_real_escape_string
 
   $query = '
-SELECT SQL_CALC_FOUND_ROWS id, name, comment, uppercats, global_rank, dir, status
+SELECT SQL_CALC_FOUND_ROWS id, name, comment, uppercats, global_rank, dir, status, image_order
   FROM '. CATEGORIES_TABLE;
 
   if (isset($params["search"]) and $params['search'] != "") 
@@ -588,6 +623,11 @@ SELECT SQL_CALC_FOUND_ROWS id, name, comment, uppercats, global_rank, dir, statu
         )
       );
 
+    if (empty($row['image_order']))
+    {
+      $row['image_order'] = str_replace('ORDER BY ', '', $conf['order_by']);
+    }
+
     if (in_array('full_name_with_admin_links', $params['additional_output']))
     {
       $row["full_name_with_admin_links"] = $cat_display_name;
@@ -630,6 +670,11 @@ function ws_categories_add($params, &$service)
 
   global $conf;
 
+  if (isset($params['pwg_token']) and get_pwg_token() != $params['pwg_token'])
+  {
+    return new PwgError(403, 'Invalid security token');
+  }
+
   if (!empty($params['position']) and in_array($params['position'], array('first','last')))
   {
     //TODO make persistent with user prefs
@@ -644,12 +689,11 @@ function ws_categories_add($params, &$service)
 
   if (!empty($params['comment']))
   {
-    // TODO do not strip tags if pwg_token is provided (and valid)
-    $options['comment'] = strip_tags($params['comment']);
+    $options['comment'] = (!$conf['allow_html_descriptions'] or !isset($params['pwg_token'])) ? strip_tags($params['comment']) : $params['comment'];
   }
   
   $creation_output = create_virtual_category(
-    strip_tags($params['name']), // TODO do not strip tags if pwg_token is provided (and valid)
+    (!$conf['allow_html_descriptions'] or !isset($params['pwg_token'])) ? strip_tags($params['name']) : $params['name'],
     $params['parent'],
     $options
     );
@@ -760,6 +804,13 @@ SELECT id
  */
 function ws_categories_setInfo($params, &$service)
 {
+  global $conf;
+
+  if (isset($params['pwg_token']) and get_pwg_token() != $params['pwg_token'])
+  {
+    return new PwgError(403, 'Invalid security token');
+  }
+
   // does the category really exist?
   $query = '
 SELECT *
@@ -814,8 +865,7 @@ SELECT *
     if (isset($params[$key]))
     {
       $perform_update = true;
-      // TODO do not strip tags if pwg_token is provided (and valid)
-      $update[$key] = strip_tags($params[$key]);
+      $update[$key] = (!$conf['allow_html_descriptions'] or !isset($params['pwg_token'])) ? strip_tags($params[$key]) : $params[$key];
     }
   }
 

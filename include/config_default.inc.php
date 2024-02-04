@@ -40,12 +40,15 @@
 
 // picture_ext : file extensions for picture file, must be a subset of
 // file_ext
-$conf['picture_ext'] = array('jpg','jpeg','png','gif');
+$conf['picture_ext'] = array('jpg','jpeg','png','gif','webp');
 
 // file_ext : file extensions (case sensitive) authorized
+//
+// * if you enable "eps" file extension, make sure you have this file type
+//   authorized in your ImageMagick policy
 $conf['file_ext'] = array_merge(
   $conf['picture_ext'],
-  array('tiff', 'tif', 'mpg','zip','avi','mp3','ogg','pdf','svg')
+  array('tiff', 'tif', 'mpg','zip','avi','mp3','ogg','pdf','svg', 'heic')
   );
 
 // enable_formats: should Piwigo search for multiple formats?
@@ -615,7 +618,7 @@ $conf['gallery_url'] = null;
 // (depends on the server AcceptPathInfo directive configuration)
 $conf['question_mark_in_urls'] = true;
 
-// php_extension_in_urls : if true, the urls generated for picture and
+// php_extension_in_urls : if false, the urls generated for picture and
 // category will not contain the .php extension. This will work only if
 // .htaccess defines Options +MultiViews parameter or url rewriting rules
 // are active.

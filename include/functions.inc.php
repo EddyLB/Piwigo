@@ -386,6 +386,35 @@ SELECT id, name
 }
 
 /**
+ * Does the current user must log visits in history table
+ *
+ * @since 14
+ *
+ * @param int $image_id
+ * @param string $image_type
+ *
+ * @return bool
+ */
+function do_log($image_id = null, $image_type = null)
+{
+  global $conf;
+
+  $do_log = $conf['log'];
+  if (is_admin())
+  {
+    $do_log = $conf['history_admin'];
+  }
+  if (is_a_guest())
+  {
+    $do_log = $conf['history_guest'];
+  }
+
+  $do_log = trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
+
+  return $do_log;
+}
+
+/**
  * log the visit into history table
  *
  * @param int $image_id
@@ -414,19 +443,7 @@ UPDATE '.USER_INFOS_TABLE.'
     pwg_query($query);
   }
 
-  $do_log = $conf['log'];
-  if (is_admin())
-  {
-    $do_log = $conf['history_admin'];
-  }
-  if (is_a_guest())
-  {
-    $do_log = $conf['history_guest'];
-  }
-
-  $do_log = trigger_change('pwg_log_allowed', $do_log, $image_id, $image_type);
-
-  if (!$do_log)
+  if (!do_log($image_id, $image_type))
   {
     return false;
   }
@@ -459,7 +476,10 @@ UPDATE '.USER_INFOS_TABLE.'
 
     $conf['history_sections_cache'] = safe_unserialize($conf['history_sections_cache']);
 
-    if (in_array($page['section'], $conf['history_sections_cache']))
+    if (
+      in_array($page['section'], $conf['history_sections_cache'])
+      or in_array(strtolower($page['section']), array_map('strtolower', $conf['history_sections_cache']))
+    )
     {
       $section = $page['section'];
     }
@@ -477,7 +497,7 @@ UPDATE '.USER_INFOS_TABLE.'
       $section = $page['section'];
     }
   }
-  
+
   $query = '
 INSERT INTO '.HISTORY_TABLE.'
   (
@@ -487,6 +507,7 @@ INSERT INTO '.HISTORY_TABLE.'
     IP,
     section,
     category_id,
+    search_id,
     image_id,
     image_type,
     format_id,
@@ -501,6 +522,7 @@ INSERT INTO '.HISTORY_TABLE.'
     \''.$ip.'\',
     '.(isset($section) ? "'".$section."'" : 'NULL').',
     '.(isset($page['category']['id']) ? $page['category']['id'] : 'NULL').',
+    '.(isset($page['search_id']) ? $page['search_id'] : 'NULL').',
     '.(isset($image_id) ? $image_id : 'NULL').',
     '.(isset($image_type) ? "'".$image_type."'" : 'NULL').',
     '.(isset($format_id) ? $format_id : 'NULL').',
@@ -618,7 +640,7 @@ function pwg_activity($object, $object_id, $action, $details=array())
       'session_idx' => $session_id,
       'ip_address' => $ip_address,
       'details' => $details_insert,
-      'user_agent' => $user_agent,
+      'user_agent' => pwg_db_real_escape_string($user_agent),
     );
   }
 

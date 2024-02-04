@@ -1345,4 +1345,15 @@ $lang['or'] = 'or';
 $lang['Locked album'] = 'Locked album';
 $lang['This album is currently locked, visible only to administrators.'] = 'This album is currently locked, visible only to administrators.';
 $lang['Unlock it'] = 'Unlock it';
+$lang['All admins'] = 'All admins';
+$lang['Only admins in a specific group'] = 'Only admins in a specific group';
+$lang['Activate button "%s"'] = 'Activate button "%s"';
+$lang['Detect and avoid duplicates during upload'] = 'Detect and avoid duplicates during upload';
+$lang['During upload, if Piwigo detects the photo already exists, associate the existing photo to the destination album, without duplicating file'] = 'During upload, if Piwigo detects the photo already exists, associate the existing photo to the destination album, without duplicating file';
+$lang['%d files'] = "%d files";
+$lang['Auto-update'] = 'Auto-update';
+$lang['Core'] = 'Core';
+$lang['System Activities'] = 'System Activities';
+$lang['Shrink'] = 'Shrink';
+$lang['Expand'] = 'Expand';
 // Leave this line empty

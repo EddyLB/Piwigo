@@ -98,6 +98,10 @@ $(".icon-help-circled").tipTip({
 });
 
 $(document).ready(function() {
+  // Only webmaster can set admin or webmaster to others users
+  if (connected_user_status !== 'webmaster') {
+    $('select[name="status"] option[value="webmaster"], select[name="status"] option[value="admin"]').attr("disabled", true);
+  }
   // We set the applyAction btn click event here so plugins can add cases to the list 
   // which is not possible if this JS part is in a JS file
   // see #1571 on Github
@@ -310,7 +314,7 @@ $(document).ready(function() {
       </div>
       <!-- username -->
       <div class="user-header-col user-header-username">
-        <span>{'Username'|@translate}</span>
+        <span id="usr-list-user">{'Username'|@translate} <span id="icon-usr-list-user" class="icon-up" style="display: none;"></span></span>
       </div>
       <!-- status -->
       <div class="user-header-col user-header-status">
@@ -326,7 +330,7 @@ $(document).ready(function() {
       </div> *}
       <!-- registration date -->
       <div class="user-header-col user-header-registration">
-        <span>{'Registered'|@translate}</span>
+        <span id="usr-list-registered">{'Registered'|@translate} <span id="icon-usr-list-registered" class="icon-up"></span></span>
       </div>
        <!-- groups -->
        <div class="user-header-col user-header-groups">
@@ -418,7 +422,7 @@ $(document).ready(function() {
           <div id="action_group_associate" class="bulkAction">
             <div class="user-action-select-container">
               <select class="user-action-select" name="associate">
-                {html_options options=$association_options selected=$associate_selected}
+                {html_options options=$association_options}
               </select>
             </div>
           </div>
@@ -427,7 +431,7 @@ $(document).ready(function() {
           <div id="action_group_dissociate" class="bulkAction">
             <div class="user-action-select-container">
               <select class="user-action-select" name="dissociate">
-                {html_options options=$association_options selected=$dissociate_selected}
+                {html_options options=$association_options}
               </select>
             </div>
           </div>
@@ -551,7 +555,7 @@ $(document).ready(function() {
             <input id="applyAction" class="submit" type="submit" value="{'Apply action'|@translate}" name="submit"> <span id="applyOnDetails"></span></input>
             <span id="applyActionLoading" style="display:none"><img src="themes/default/images/ajax-loader-small.gif"></span>
             <br />
-            <span class="infos icon-ok" style="display:inline-block;display:none;max-width:100%;margin:0;margin-top:30px;min-height:0;border-left: 2px solid #00FF00;">{'Users modified'|translate}</span>
+            <span class="infos icon-ok icon-green" style="display:inline-block;display:none;max-width:100%;margin:0;margin-top:30px;min-height:0;">{'Users modified'|translate}</span>
           </p>
         </div> {* #permitActionUserList *}
       </fieldset>
@@ -1066,16 +1070,9 @@ $(document).ready(function() {
   font-weight:bold;
 }
 
-#AddUserSuccess span {
-  color: #0a0;
-}
-
 #AddUserSuccess label {
   padding: 10px;
-  background-color:  #c2f5c2;
-  border-left: 2px solid #00FF00;
   cursor: default;
-  color: #0a0;
 }
 
 #AddUserSuccess .edit-now {
@@ -1715,9 +1712,6 @@ $(document).ready(function() {
 .update-user-success {
     padding:10px;
     display:none;
-    background-color:#c2f5c2;
-    color: #0a0;
-    border-left: 2px solid #00FF00;
 }
 
 .update-user-fail {
