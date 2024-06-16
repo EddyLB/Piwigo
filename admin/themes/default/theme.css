@@ -1613,6 +1613,7 @@ a.stat-box:hover {
 
 .storage-tooltips .tooltip {
   min-width: 265px;
+  max-width: 400px;
   padding: 15px 20px;
 }
 
@@ -2188,10 +2189,10 @@ margin-top:4px; padding-bottom:3px; padding-top:3px; top:1px;
 }
 
 .themeActions a:nth-child(1) {background-color: #ffc17e; color: #222;}
-.themeActions a:nth-child(1):hover {background-color: #ff7700; color: white; text-decoration: none;}
+.themeActions a:nth-child(1):hover {background-color: #ff7700; color: white; text-decoration: none; transition-duration: 125ms;}
 
 .themeActions a:nth-child(2) {background-color: #ececec; color: #222;}
-.themeActions a:nth-child(2):hover {background-color: #ff9b32; color: #111; text-decoration: none;}
+.themeActions a:nth-child(2):hover {background-color: #ff9b32; color: #111; text-decoration: none; transition-duration: 125ms;}
 
 #themesContent H3 {font-size:16px; text-align:left; border-bottom:1px solid #444; letter-spacing:1px; margin:5px;}
 .themeBoxes {min-height:0;text-align:left;}
@@ -5617,7 +5618,7 @@ input:checked + .slider:before, input:checked + .slider::after {
   position: relative;
 }
 
-.AddUserErrors, .update-user-fail, .AddAlbumErrors {
+.AddUserErrors, .update-user-fail, .AddAlbumErrors, .EditUserErrors, .update-password-fail {
   background-color: #ffcfcf;
   color: #ff5252;
   border-left:solid 3px red;
@@ -5632,7 +5633,9 @@ input:checked + .slider:before, input:checked + .slider::after {
   border-left: 2px solid #00FF00;
   color: #0a0;
 }
-.update-user-success {
+.update-user-success,
+.update-password-success,
+.update-username-success {
   border-left: 2px solid #00FF00;
 }
 #UserList .AddUserBlock p,
@@ -6020,24 +6023,9 @@ fieldset#environment legend i[class*="icon-"] {
   }
 }
 
-.buttonLike, .buttonGradient, input[type="submit"], input[type="button"], input[type="reset"] {
+.buttonLike, input[type="submit"], input[type="button"], input[type="reset"] {
  font-size:12px; border:none; padding:13px 20px; margin-left:0; font-weight: bold; transition: all 125ms ease-out;
 }
-
-.buttonGradient {
-  padding: 8px 10px;
-  margin-left: 5px;
-  background: linear-gradient(135deg, rgb(255, 119, 0) 0%, rgb(249, 76, 93) 25%, rgb(201, 74, 140) 50%, rgb(249, 76, 93) 100%);  transition: 0.3s ease; 
-  cursor: pointer;
-  color: white !important;
-  background-size: 200% 100%;
-}
-
-.syncBtn .buttonGradient {
-  padding:13px 20px;
-}
-
-.buttonGradient:hover {background-position-x: 100%;}
 
 #cboxLoadedContent input[type="submit"] {margin-bottom: 20px; float: none;}
 
@@ -6228,7 +6216,13 @@ li.plupload_delete a:hover {background: url("images/cancelhover.svg")!important;
 #action_title .large, #action_author .large {padding: 12px 10px; border: 1px solid #787777a6;margin-bottom: 8px;}
 #action_add_tags .selectize-input.items.not-full.has-options, 
 #action_add_tags .selectize-input.items.not-full.has-options.focus.input-active.dropdown-active, .selectize-input.items.not-full, .selectize-input.items.full {
-	padding: 10px 10px; height: 45px; box-shadow: none; border-radius: 0px; border: 1px solid #787777a6;
+    padding: 10px 10px; height: 45px; box-shadow: none; border-radius: 0px; border: 1px solid #787777a6;
+}
+
+#pictureModify .selectize-input.items.not-full, .elementEdit .selectize-input.items.not-full {
+  height: auto !important;
+  min-height: 45px;
+  max-height: 184px;
 }
 
 .pageNumberSelected {background-color: #ffaf58 !important; border: none !important; border-radius: 0 !important;}
@@ -6597,17 +6591,51 @@ color:#FF7B00;
   color: #4c4c4c
 }
 
-.delete-user-button {
-  color:#353535;
-  background-color: #F3F3F3;
-}
-
 .slider-bar-wrapper .ui-slider-horizontal{
   background-color:#e3e3e3;
 }
 
-.preferences-container, .properties-container {
+.edit-user-tab,
+.guest-edit-user-tab {
   border-left: solid 1px #ddd;
+}
+
+.edit-user-tab-title,
+.guest-edit-user-tab-title {
+  border-bottom: solid 1px #ddd;
+}
+
+.edit-user-tab-title .selected,
+.edit-user-tab-title .selected:hover,
+.guest-edit-user-tab-title .selected,
+.guest-edit-user-tab-title .selected:hover {
+  color: #323232;
+  border-bottom: solid 4px #323232 !important;
+}
+
+.edit-user-tab-title p:hover,
+.guest-edit-user-tab-title p:hover {
+  border-color: #ddd;
+}
+
+.edit-user-icons .delete-user-button::before,
+.princes-of-this-piwigo {
+  color: #777777;
+}
+
+.edit-user-icons .icon-trash-1:hover::before,
+.king-of-this-piwigo {
+  color: #ffa646;
+}
+
+.royal-court-of-this-piwigo {
+  color: #dbdbdb;
+}
+
+.user-property-username-change-content,
+.user-property-password-change-content,
+.user-property-main-user-content {
+  background-color: white;
 }
 
 .update-container {
@@ -6619,6 +6647,11 @@ color:#FF7B00;
 }
 .user-property-input.user-property-input-password:hover {
   background-color: #f0f0f0;
+}
+
+.password-choice-content .unavailable,
+.password-choice-content .unavailable:hover {
+  color:#CBCBCB !important;
 }
 
 /* Activity Tab in user manager */

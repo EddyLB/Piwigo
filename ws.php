@@ -158,6 +158,10 @@ function ws_addDefaultMethods( $arr )
           'info' => implode(',', array_keys(ImageStdParams::get_defined_type_map()))
           ),
         'search' => array('default' => null),
+        'limit' => array(
+          'default' => null,
+          'type'=>WS_TYPE_INT|WS_TYPE_POSITIVE,
+          'info' => 'Parameter not compatible with recursive=true'),
         ),
       'Returns a list of categories.',
       $ws_functions_root . 'pwg.categories.php'
@@ -1448,6 +1452,42 @@ enabled_high, registration_date, registration_date_string, registration_date_sin
       ),
       '',
       $ws_functions_root . 'pwg.images.php'
+    );
+
+    $service->addMethod(
+      'pwg.users.generateResetPasswordLink',
+      'ws_users_generate_reset_password_link',
+      array(
+        'user_id' => array(
+          'type'=>WS_TYPE_ID
+        ),
+        'pwg_token' => array(),
+        'send_by_mail' => array(
+          'flags' => WS_PARAM_OPTIONAL,
+          'type' => WS_TYPE_BOOL,
+          'default' => false,
+        ),
+      ),
+      'Return the reset password link <br />
+       (Only webmaster can perform this action for another webmaster)',
+      $ws_functions_root . 'pwg.users.php',
+      array('admin_only'=>true)
+    );
+
+    $service->addMethod(
+      'pwg.users.setMainUser',
+      'ws_set_main_user',
+      array(
+        'user_id' => array(
+          'type'=>WS_TYPE_ID
+        ),
+        'pwg_token' => array(),
+      ),
+      'Update the main user (owner) <br />
+        - To be the main user, the user must have the status "webmaster".<br />
+        - Only a webmaster can perform this action',
+      $ws_functions_root . 'pwg.users.php',
+      array('admin_only'=>true, 'post_only'=>true)
     );
 }
 
